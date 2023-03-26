@@ -1,37 +1,59 @@
 <script setup>
 const router = useRouter();
+const config = useRuntimeConfig();
 const trainerName = ref("");
-const inputTrainerName = computed(() => trainerName.value)
+const safeTrainerName = computed(() => trimAvoidCharacters(trainerName.value));
 const onSubmit = async () => {
-  console.log(inputTrainerName.value)
-  const response = await fetch('http://localhost:3000/api/trainer', {
+  const response = await fetch(`${config.backendOrigin}/api/trainer`, {
     method:'POST',
     headers: {
       "Content-Type": "application/json",
     },
-    body:JSON.stringify({ name: inputTrainerName.value})
+    body:JSON.stringify({ name: safeTrainerName.value})
   })
-  if(response.ok) {
-    alert('登録完了');
-    router.push(`/trainer/${inputTrainerName.value}`)
-  } else {
-    alert('登録失敗');
-  }
+  if (!response.ok) return;
+  router.push(`/trainer/${safeTrainerName.value}`);
+
 }
+const { dialog, onOpen, onClose } = useDialog();
 </script>
 
 <template>
   <div>
     <h1>あたらしくはじめる</h1>
-    <label>では　はじめに　きみの　なまえを　おしえて　もらおう！</label>
+    <p>では　はじめに　きみの　なまえを　おしえて　もらおう！</p>
     <form @submit.prevent>
-      <label>なまえ</label>
-      <label>とくていの　もじは　とりのぞかれるぞ！</label>
-      <!-- <input type="text" value=""> -->
-
-      <input id="name" type="text" v-model="trainerName">
-      <button v-on:click="onSubmit">けってい</button>
+      <div class="item">
+        <label for="name">なまえ</label>
+        <span id="name-description"
+          >とくていの　もじは　とりのぞかれるぞ！</span
+        >
+        <input
+          id="name"
+          v-model="trainerName"
+          aria-decribedby="name-description"
+          @keydown.enter="onSubmit"
+        />
+        <GamifyButton type="button" @click="onOpen(true)">けってい</GamifyButton>
+      </div>
     </form>
+    <!-- <GamifyButton @click="onOpen(true)">ダイアログをひらく</GamifyButton> -->
+    <GamifyDialog
+      v-if="dialog"
+      id="confirm-submit"
+      title="かくにん"
+      :description="`ふむ・・・　きみは　${trainerName}　と　いうんだな！`"
+      @close="onClose"
+    >
+      <GamifyList :border="false" direction="horizon">
+        <GamifyItem>
+          <GamifyButton @click="onClose">いいえ</GamifyButton>
+        </GamifyItem>
+        <GamifyItem>
+          <GamifyButton @click="onSubmit">はい</GamifyButton>
+        </GamifyItem>
+      </GamifyList>
+    </GamifyDialog>
   </div>
 </template>
 

@@ -1,6 +1,5 @@
 <script setup>
-// const { data: trainers } = await useTrainers();
-const trainers = ["コジロウ", "サトシ", "ムサシ", "レッド"]
+const { data: trainers } = await useTrainers();
 </script>
 
 <template>
