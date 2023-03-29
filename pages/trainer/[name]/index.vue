@@ -43,6 +43,12 @@ const {
   <CatchButton :to="`/trainer/${trainer.name}/catch`"
     >ポケモンをつかまえる</CatchButton
   >
+  <GamifyList>
+    <GamifyItem v-for="pokemon in trainer.pokemons" :key="pokemon.id">
+      <img :src="pokemon.sprites.front_default" />
+      <span class="pokemon-name">{{ pokemon.name }}</span>
+    </GamifyItem>
+  </GamifyList>
   <GamifyDialog
       v-if="deleteDialog"
       id="confirm-delete"
